@@ -1,6 +1,6 @@
-# NeuralDub Studio: NNDL Architecture and Experimental Method
+# NeuralDub Studio: Architecture and Optimization Method
 
-This document records the architecture, training objective, evaluation protocol, and memory strategy used by NeuralDub Studio. It is intended to accompany the NNDL submission and to make the reported experiment reproducible.
+This document records the architecture, training objective, evaluation protocol, and memory strategy used by NeuralDub Studio for reproducible engineering runs.
 
 ## 1. End-to-end architecture
 

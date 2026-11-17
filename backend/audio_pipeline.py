@@ -19,12 +19,16 @@ from backend.memory_utils import flush_memory, get_device
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = PROJECT_ROOT / "models"
 
-SUPPORTED_LANGUAGES = {"eng_Latn", "hin_Deva", "kan_Knda", "spa_Latn"}
+SUPPORTED_LANGUAGES = {"eng_Latn", "hin_Deva", "kan_Knda", "spa_Latn", "fra_Latn", "deu_Latn", "deu_Deva", "jpn_Jpan"}
+LANGUAGE_ALIASES = {"deu_Deva": "deu_Latn"}  # UI compatibility; NLLB's official German code is deu_Latn.
 EDGE_VOICES = {
     "eng_Latn": "en-US-AriaNeural",
     "hin_Deva": "hi-IN-SwaraNeural",
     "kan_Knda": "kn-IN-SapnaNeural",
     "spa_Latn": "es-ES-ElviraNeural",
+    "fra_Latn": "fr-FR-DeniseNeural",
+    "deu_Latn": "de-DE-KatjaNeural",
+    "jpn_Jpan": "ja-JP-NanamiNeural",
 }
 
 
@@ -96,6 +100,7 @@ def translate_text(text: str, src_lang: str, tgt_lang: str) -> str:
         return ""
     if src_lang not in SUPPORTED_LANGUAGES or tgt_lang not in SUPPORTED_LANGUAGES:
         raise ValueError(f"Unsupported language. Use one of: {sorted(SUPPORTED_LANGUAGES)}")
+    src_lang, tgt_lang = LANGUAGE_ALIASES.get(src_lang, src_lang), LANGUAGE_ALIASES.get(tgt_lang, tgt_lang)
 
     model: Any | None = None
     tokenizer: Any | None = None
@@ -200,6 +205,7 @@ def clone_and_synthesize(translated_text: str, reference_wav: str, tgt_lang: str
         raise ValueError("Cannot synthesize empty translated text.")
     if tgt_lang not in SUPPORTED_LANGUAGES:
         raise ValueError(f"Unsupported target language: {tgt_lang}")
+    tgt_lang = LANGUAGE_ALIASES.get(tgt_lang, tgt_lang)
     reference = _require_file(reference_wav, "Reference WAV")
     destination = Path(output_wav).expanduser().resolve()
     destination.parent.mkdir(parents=True, exist_ok=True)

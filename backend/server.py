@@ -25,6 +25,7 @@ from backend.visual_telemetry import generate_spectrogram_comparison
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 MODELS_DIR = PROJECT_ROOT / "models"
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
 OUTPUTS_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="NeuralDub Studio API", version="0.2.0")
@@ -51,7 +52,7 @@ def _url(path: Path) -> str:
 
 
 def _source_language(whisper_language: str) -> str:
-    return {"en": "eng_Latn", "hi": "hin_Deva", "kn": "kan_Knda", "es": "spa_Latn"}.get(whisper_language, "eng_Latn")
+    return {"en": "eng_Latn", "hi": "hin_Deva", "kn": "kan_Knda", "es": "spa_Latn", "fr": "fra_Latn", "de": "deu_Latn", "ja": "jpn_Jpan"}.get(whisper_language, "eng_Latn")
 
 
 def _process_dub(job_id: str, video_path: Path, target_language: str, use_finetuned_weights: bool) -> None:
@@ -149,3 +150,7 @@ def training_metrics() -> dict[str, Any]:
                    "GAN": [1.20, 1.08, 0.98, 0.91, 0.87], "SyncNet": [0.83, 0.70, 0.61, 0.55, 0.50]},
         "benchmarks": {"before": {"LSE-D": 8.1, "LSE-C": 4.0}, "after": {"LSE-D": 7.2, "LSE-C": 4.7}},
     }
+
+
+# Mount last so explicit /api/* and /outputs/* routes keep their precedence.
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

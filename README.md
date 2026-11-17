@@ -1,6 +1,6 @@
 # NeuralDub Studio
 
-NeuralDub Studio is an end-to-end multilingual video dubbing and lip-sync system built as an NNDL course project. It translates a talking-head video, preserves the reference speaker's vocal character, and renders audio-driven lip motion for the translated speech.
+NeuralDub Studio is an end-to-end multilingual video dubbing and lip-sync engine. It translates a talking-head video, preserves the reference speaker's vocal character, and renders audio-driven lip motion for the translated speech.
 
 The project is designed around an 8 GB Apple M1 MacBook Air for local demonstration, with a Google Colab Pro GPU workflow for fine-tuning MuseTalk.
 
@@ -29,9 +29,9 @@ flowchart LR
 - MuseTalk 1.5 latent-space lip-sync with optional fine-tuned UNet weights.
 - High-contrast Mel-spectrogram, pitch/energy, and lip-sync timeline telemetry.
 - Background FastAPI jobs with frontend-friendly status and artifact URLs.
-- Colab Pro fine-tuning notebook with a reproducible multi-term NNDL objective and quantitative evaluation workflow.
+- Colab Pro fine-tuning notebook with a reproducible multi-term objective and quantitative evaluation workflow.
 
-See [the NNDL architecture note](docs/NNDL_ARCHITECTURE.md) for equations, metrics, model boundaries, and memory engineering.
+See [the architecture note](docs/NNDL_ARCHITECTURE.md) for equations, metrics, model boundaries, and memory engineering.
 
 ## Prerequisites
 
@@ -121,8 +121,8 @@ Poll the returned ID at `/api/status/<job_id>`. Each job stores its own artifact
 ## Fine-tune on Google Colab Pro
 
 1. Use a T4, L4, or A100 GPU runtime in Colab.
-2. Upload or open [`training/FineTune_MuseTalk_NNDL.ipynb`](training/FineTune_MuseTalk_NNDL.ipynb).
-3. Copy [`training/evaluate_metrics.py`](training/evaluate_metrics.py) into `/content/neural-dub-nndl/`, or clone this repository into that path.
+2. Upload or open [`training/FineTune_MuseTalk.ipynb`](training/FineTune_MuseTalk.ipynb).
+3. Copy [`training/evaluate_metrics.py`](training/evaluate_metrics.py) into `/content/neural-dub-studio/`, or clone this repository into that path.
 4. Run Cell 1 to install MuseTalk, evaluation dependencies, and download weights.
 5. Run Cell 2. It downloads a public talking-head sample for smoke testing; upload only licensed, consented clips for HDTF/MEAD/LRS2-scale training or a custom identity adaptation clip.
 6. Configure a real pretrained SyncNet checkpoint before the full-loss experiment. A no-SyncNet run is an explicit ablation, not the reported full model.
@@ -142,7 +142,7 @@ backend/
   server.py               FastAPI contract for the visual frontend
   visual_telemetry.py     Spectrogram and voice-similarity metrics
 training/
-  FineTune_MuseTalk_NNDL.ipynb   Colab Pro training/evaluation workflow
+  FineTune_MuseTalk.ipynb        Colab Pro training/evaluation workflow
   evaluate_metrics.py             Standalone SSIM/PSNR/SyncNet evaluator
 models/                  Downloaded checkpoints and fine-tuned artifacts (ignored)
 outputs/                 Generated artifacts (ignored)

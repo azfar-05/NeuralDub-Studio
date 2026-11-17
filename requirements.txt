@@ -1,0 +1,36 @@
+# Core API and system telemetry
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+psutil>=5.9
+
+# Part 1 audio pipeline
+torch>=2.2
+transformers>=4.40
+sentencepiece>=0.2
+faster-whisper>=1.0
+huggingface_hub>=0.22
+edge-tts>=6.1
+# Optional Indian-language zero-shot source synthesizer.  Enable at runtime
+# with NEURALDUB_USE_INDIC_F5=1 only on machines with enough free RAM.
+f5-tts>=0.1
+librosa>=0.10
+matplotlib>=3.8
+numpy>=1.26
+
+# OpenVoice V2 is installed from its upstream repository after PyTorch.
+git+https://github.com/myshell-ai/OpenVoice.git
+
+# Part 2 comparison telemetry and MuseTalk runtime dependencies
+opencv-python-headless>=4.9
+pyyaml>=6.0
+diffusers>=0.27
+accelerate>=0.28
+omegaconf>=2.3
+av>=12.0
+einops>=0.7
+scipy>=1.12
+safetensors>=0.4
+scikit-image>=0.22
+lpips>=0.1.4
+pytorch-fid>=0.3

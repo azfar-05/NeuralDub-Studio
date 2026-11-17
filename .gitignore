@@ -1,0 +1,59 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Environment variables & secrets (e.g., HF_TOKEN)
+.env
+.env.*
+*.pem
+*.key
+
+# Large AI model checkpoints & cloned third-party repos
+models/*
+!models/.gitkeep
+!models/training_metrics.json
+backend/musetalk_repo/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+*.onnx
+*.zip
+*.tar.gz
+
+# Generated runtime media & temporary outputs
+outputs/*
+!outputs/.gitkeep
+tmp/
+temp/
+*.wav
+*.mp3
+*.mp4
+*.mov
+*.avi
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+AGENTS.md

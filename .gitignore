@@ -53,6 +53,13 @@ temp/
 *.mov
 *.avi
 
+# Report binaries (keep showcase screenshots in report_assets/ tracked)
+*.docx
+*.pdf
+!report_assets/
+!report_assets/*.png
+!report_assets/*.jpg
+
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 

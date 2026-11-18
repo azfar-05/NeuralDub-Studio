@@ -1,1 +1,1309 @@
-:root{--bg:#0b0f19;--panel:rgba(22,30,45,.72);--panel-solid:#121a29;--line:rgba(148,163,184,.15);--text:#f1f5f9;--muted:#93a4ba;--cyan:#22d3ee;--indigo:#818cf8;--green:#34d399;--red:#fb7185}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif;min-height:100vh}.shell{max-width:1580px;margin:auto;padding:24px}.ambient{position:fixed;width:40vw;height:40vw;border-radius:50%;filter:blur(100px);opacity:.12;pointer-events:none;z-index:-1}.ambient-one{background:#2563eb;top:-20vw;left:-15vw}.ambient-two{background:#0891b2;right:-18vw;bottom:-26vw}.glass{background:linear-gradient(145deg,rgba(30,41,59,.72),rgba(15,23,42,.72));border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.22);backdrop-filter:blur(20px);border-radius:18px}.topbar{height:80px;display:flex;align-items:center;padding:0 20px;gap:24px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:11px;min-width:220px}.brand-mark{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--indigo));color:#08111d;font-weight:800}.brand p,.brand span{margin:0;font-size:12px;font-weight:800;letter-spacing:.15em}.brand span,.eyebrow{font-family:"DM Mono",monospace;color:var(--muted);font-size:10px;letter-spacing:.12em}.tabs{display:flex;gap:6px;background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:4px}.tab{border:0;background:transparent;color:var(--muted);padding:8px 13px;border-radius:7px;font:600 12px Manrope;cursor:pointer;transition:.2s}.tab:hover{color:white}.tab.active{background:#273449;color:white;box-shadow:0 3px 10px #0004}.health-strip{margin-left:auto;display:flex;align-items:center;gap:18px}.health-item{font:10px "DM Mono",monospace;color:var(--muted);white-space:nowrap}.health-item b{color:#e2e8f0}.status-dot{display:inline-block;width:7px;height:7px;border-radius:100%;background:#fbbf24;margin-right:6px;box-shadow:0 0 10px #fbbf24}.status-dot.online{background:var(--green);box-shadow:0 0 10px var(--green)}.checkpoint{color:#b8c5d8}.checkpoint-icon{color:var(--cyan);font-size:14px}.workspace{display:none}.workspace.active{display:block;animation:reveal .35s ease}@keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.studio-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px}.controls{padding:24px;height:max-content;position:sticky;top:20px}.panel-heading h1,.benchmark-hero h1{font-size:23px;letter-spacing:-.04em;margin:7px 0 9px}.panel-heading>p:last-child,.benchmark-hero>p{color:var(--muted);font-size:12px;line-height:1.65;margin:0 0 21px}.dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px dashed #40516d;border-radius:13px;min-height:150px;cursor:pointer;transition:.2s;background:#10182780}.dropzone:hover,.dropzone.dragover{border-color:var(--cyan);background:#11304155;box-shadow:inset 0 0 25px #22d3ee10}.upload-icon{font-size:24px;color:var(--cyan)}.dropzone strong{font-size:12px}.dropzone small,.toggle-row small{font-size:10px;color:var(--muted)}.file-meta{margin-top:10px;display:flex;align-items:center;gap:8px;border-radius:9px;padding:8px 10px;background:#0b1220;font:10px "DM Mono";color:#cbd5e1}.file-meta button{margin-left:auto;background:transparent;border:0;color:var(--muted);font-size:17px;cursor:pointer}.file-icon{color:var(--cyan)}.input-preview{margin-top:12px;width:100%;border-radius:12px;max-height:180px;background:#000}.hidden{display:none!important}.field{margin-top:20px}.field label{display:block;color:#b8c5d8;font-size:11px;font-weight:700;margin-bottom:7px}.field select{width:100%;background:#0c1422;border:1px solid #344157;color:#e2e8f0;border-radius:9px;padding:11px;font:12px Manrope;outline:none}.toggle-row{margin:20px 0;display:flex;align-items:center;gap:12px;cursor:pointer}.toggle-row>span:first-child{display:grid;gap:3px;flex:1}.toggle-row b{font-size:11px}.toggle-row input{display:none}.switch{width:35px;height:20px;border-radius:99px;background:#344155;padding:3px;transition:.2s}.switch i{display:block;width:14px;height:14px;background:#dbeafe;border-radius:50%;transition:.2s}.toggle-row input:checked+.switch{background:linear-gradient(90deg,var(--cyan),var(--indigo))}.toggle-row input:checked+.switch i{transform:translateX(15px);background:white}.generate{width:100%;border:0;border-radius:10px;padding:13px 14px;background:linear-gradient(105deg,#06b6d4,#6366f1);color:#fff;font:700 12px Manrope;display:flex;justify-content:space-between;cursor:pointer;box-shadow:0 10px 25px #0891b244;transition:.2s}.generate:hover{transform:translateY(-2px);box-shadow:0 13px 30px #0891b266}.generate:disabled{opacity:.5;cursor:wait;transform:none}.generate b{font-size:17px;line-height:12px}.request-error{color:var(--red);font-size:11px;line-height:1.5;margin:12px 0 0}.main-stage{min-width:0}.pipeline{padding:22px}.section-title,.output-title{display:flex;justify-content:space-between;align-items:flex-start}.section-title h2,.output-title h2{font-size:17px;letter-spacing:-.025em;margin:5px 0 0}.badge{border:1px solid #3d4a5e;border-radius:99px;padding:5px 9px;font:9px "DM Mono";letter-spacing:.08em}.badge.active{color:var(--cyan);border-color:#22d3ee55;background:#22d3ee0c}.badge.done{color:var(--green);border-color:#34d39955}.badge.error{color:var(--red);border-color:#fb718555}.progress-line{height:3px;background:#243044;margin:20px 0;border-radius:5px;overflow:hidden}.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--indigo));box-shadow:0 0 10px var(--cyan);transition:width .5s}.stage-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stage-card{position:relative;min-height:92px;padding:14px;border-radius:12px;border:1px solid #283548;background:#0d152280;overflow:hidden;display:flex;gap:10px;align-items:flex-start}.stage-card:before{content:"";position:absolute;left:0;top:0;height:2px;width:100%;background:transparent}.stage-card.active:before{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}.stage-card.done:before{background:var(--green)}.stage-card h3{font-size:11px;margin:0 0 4px;white-space:nowrap}.stage-card p{font:9px "DM Mono";color:var(--muted);margin:0}.stage-index{font:700 11px "DM Mono";color:#52637b}.stage-state{position:absolute;bottom:11px;right:11px;color:#708198;font:8px "DM Mono"}.stage-card.active .stage-state{color:var(--cyan)}.stage-card.done .stage-state{color:var(--green)}.pipeline-footer{display:flex;gap:20px;margin-top:17px;color:#72829a;font-size:10px}.mono{font-family:"DM Mono",monospace}.pipeline-footer b{color:#d9e5f5;font-weight:500}.pipeline-footer span:last-child{margin-left:auto}.empty-state{min-height:380px;margin-top:20px;display:grid;place-content:center;text-align:center}.empty-state h2{font-size:22px;letter-spacing:-.04em;margin:20px 0 7px}.empty-state p{font-size:12px;color:var(--muted);margin:0}.orbital{height:80px;width:80px;border:1px solid #33445e;border-radius:50%;margin:auto;position:relative;display:grid;place-items:center}.orbital i{position:absolute;width:100px;height:40px;border:1px solid #22d3ee55;border-radius:50%;transform:rotate(35deg)}.orbital i+ i{transform:rotate(-35deg);border-color:#818cf855}.orbital b{color:var(--cyan);font-size:22px}.outputs{margin-top:20px}.download,.sync-play{border:1px solid #3b82f655;color:#a5f3fc;background:#0e2139;padding:8px 12px;border-radius:8px;font:600 10px Manrope;text-decoration:none;cursor:pointer}.compare-grid,.diagnostics-grid,.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:15px}.media-card,.chart-card,.mouth-card,.transcript-card,.spectrogram-card{padding:12px;overflow:hidden}.media-card.featured{border-color:#22d3ee44}.card-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.card-label span{font:10px "DM Mono";letter-spacing:.09em;color:#cbd5e1}.card-label small{font-size:9px;color:#708198}.media-card video{background:#020617;width:100%;display:block;border-radius:9px;aspect-ratio:16/9}.sync-play{margin-top:13px}.chart-card canvas{height:225px!important;width:100%!important}.mouth-card video{width:100%;background:#000;border-radius:9px;aspect-ratio:2/1}.transcript-card>p:not(.eyebrow){font-size:13px;line-height:1.6;margin:10px 0;color:#e2e8f0}.translation{border-top:1px solid var(--line);padding-top:10px}.translation span{font:9px "DM Mono";color:var(--cyan)}.translation p{font-size:13px;line-height:1.5;margin:5px 0 0}.spectrogram-card img{width:100%;border-radius:8px;min-height:100px;object-fit:cover}.benchmark-hero{margin:20px 0 22px}.benchmark-hero h1{font-size:31px}.metric-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.metric-card{padding:16px}.metric-name{font:10px "DM Mono";color:#94a3b8;letter-spacing:.08em;margin:0 0 15px}.metric-card>div{display:flex;justify-content:space-between;align-items:baseline}.metric-base{color:#66778e;font:10px "DM Mono"}.metric-value{font-size:22px;letter-spacing:-.05em}.metric-delta{font:600 10px "DM Mono";color:var(--green);margin:10px 0 4px}.metric-delta.negative{color:var(--red)}.metric-caption{color:#718198;font-size:9px}.telemetry-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-top:16px}.loss-card,.architecture-card{padding:20px;min-height:365px}.loss-card canvas{height:280px!important;width:100%!important;margin-top:18px}.architecture-card h2{font-size:18px;margin:7px 0 11px}.architecture-card>p:not(.eyebrow){font-size:12px;color:#9babbe;line-height:1.7}.memory-flow{margin:25px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.memory-flow span{font:9px "DM Mono";padding:7px 8px;background:#112238;border:1px solid #22d3ee2b;color:#9cebf5;border-radius:6px}.memory-flow i{color:#61738b;font-style:normal}.architecture-notes{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--line);padding-top:17px}.architecture-notes div{display:grid;gap:4px}.architecture-notes b{font-size:17px;color:#d9e5f5}.architecture-notes small{font-size:9px;color:#7d8da3;line-height:1.35}@media(max-width:1050px){.studio-grid{grid-template-columns:1fr}.controls{position:static}.stage-cards,.metric-grid{grid-template-columns:repeat(2,1fr)}.health-strip{gap:10px}.checkpoint{display:none}}@media(max-width:650px){.shell{padding:12px}.topbar{height:auto;flex-wrap:wrap;padding:14px}.brand{min-width:auto}.health-strip{width:100%;margin:0;justify-content:space-between}.tabs{order:3;width:100%}.tab{flex:1}.stage-cards,.compare-grid,.diagnostics-grid,.intel-grid,.metric-grid,.telemetry-grid{grid-template-columns:1fr}.pipeline-footer{flex-wrap:wrap;gap:7px}.pipeline-footer span:last-child{margin-left:0;width:100%}.benchmark-hero h1{font-size:25px}}
+/* ==========================================================================
+   NeuralDub Studio — Clean AI Studio Stylesheet
+   High-craft dark-mode UI with progressive-disclosure tooltips.
+   ========================================================================== */
+
+:root {
+  --bg: #070b14;
+  --panel: rgba(18, 26, 43, 0.78);
+  --line: rgba(148, 163, 184, 0.14);
+  --line-strong: rgba(148, 163, 184, 0.26);
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --muted: #8ea0b8;
+  --cyan: #22d3ee;
+  --indigo: #818cf8;
+  --green: #34d399;
+  --red: #fb7185;
+  --amber: #fbbf24;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 9px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Manrope", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+code {
+  font-family: "DM Mono", monospace;
+  font-size: 0.9em;
+  color: #a5f3fc;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(34, 211, 238, 0.18);
+}
+
+/* ==========================================================================
+   1. Layout Shell & Ambient Lighting
+   ========================================================================== */
+
+.shell {
+  max-width: 1540px;
+  margin: 0 auto;
+  padding: 22px 26px 48px;
+}
+
+.ambient {
+  position: fixed;
+  width: 42vw;
+  height: 42vw;
+  border-radius: 50%;
+  filter: blur(115px);
+  opacity: 0.11;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ambient-one {
+  background: #2563eb;
+  top: -18vw;
+  left: -14vw;
+}
+
+.ambient-two {
+  background: #0891b2;
+  right: -16vw;
+  bottom: -24vw;
+}
+
+.glass {
+  background: linear-gradient(155deg, rgba(26, 37, 58, 0.76), rgba(12, 19, 34, 0.84));
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+}
+
+.mono {
+  font-family: "DM Mono", monospace;
+}
+
+.eyebrow {
+  font-family: "DM Mono", monospace;
+  color: var(--cyan);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   2. Progressive-Disclosure Info Tooltips (ⓘ)
+   ========================================================================== */
+
+.title-with-tip,
+.label-with-tip,
+.stage-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.info-tip {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--muted);
+  font: 600 10px/1 "DM Mono", monospace;
+  cursor: help;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.info-tip:hover,
+.info-tip:focus-visible {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(14, 33, 57, 0.95);
+  outline: none;
+}
+
+.info-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 270px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #09101d;
+  border: 1px solid rgba(34, 211, 238, 0.38);
+  color: #e2e8f0;
+  font: 400 11px/1.48 "Manrope", sans-serif;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 60;
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+}
+
+.info-tip:hover::after,
+.info-tip:focus-visible::after,
+.info-tip.open::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Keep topbar tooltip dropping downward so it never clips above viewport */
+.topbar .info-tip::after {
+  bottom: auto;
+  top: calc(100% + 9px);
+  left: 0;
+  transform: translateX(0) translateY(-4px);
+}
+
+.topbar .info-tip:hover::after,
+.topbar .info-tip:focus-visible::after,
+.topbar .info-tip.open::after {
+  transform: translateX(0) translateY(0);
+}
+
+/* ==========================================================================
+   3. Topbar & Runtime Health Telemetry
+   ========================================================================== */
+
+.topbar {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  padding: 12px 22px;
+  gap: 24px;
+  margin-bottom: 22px;
+  position: relative;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 220px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--cyan), var(--indigo));
+  color: #06101e;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 6px 18px rgba(34, 211, 238, 0.28);
+}
+
+.brand p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+}
+
+.brand span {
+  display: block;
+  margin-top: 2px;
+  font-family: "DM Mono", monospace;
+  color: var(--muted);
+  font-size: 9.5px;
+  letter-spacing: 0.11em;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: #080e1a;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 4px;
+}
+
+.tab {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font: 600 12px "Manrope", sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #ffffff;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, rgba(39, 52, 73, 0.95), rgba(30, 41, 59, 0.95));
+  color: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.health-strip {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.health-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 11px "DM Mono", monospace;
+  color: var(--muted);
+  white-space: nowrap;
+  background: rgba(11, 18, 32, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 6px 11px;
+  border-radius: 99px;
+}
+
+.health-item b {
+  color: #f8fafc;
+  font-weight: 500;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 100%;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+}
+
+.status-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+
+.checkpoint {
+  color: #cbd5e1;
+  border-color: rgba(34, 211, 238, 0.22);
+}
+
+.checkpoint-icon {
+  color: var(--cyan);
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   4. Workspace Switching & Studio Grid
+   ========================================================================== */
+
+.workspace {
+  display: none;
+}
+
+.workspace.active {
+  display: block;
+  animation: reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.studio-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* ==========================================================================
+   5. Left Sidebar Controls
+   ========================================================================== */
+
+.controls {
+  padding: 22px;
+  position: sticky;
+  top: 20px;
+}
+
+.panel-heading h1,
+.benchmark-hero h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 6px 0 8px;
+  color: #ffffff;
+}
+
+.panel-heading > p:last-child,
+.benchmark-hero > p {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px dashed #3b4d6b;
+  border-radius: 13px;
+  min-height: 136px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(11, 18, 32, 0.55);
+  text-align: center;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--cyan);
+  background: rgba(17, 48, 65, 0.38);
+  box-shadow: inset 0 0 25px rgba(34, 211, 238, 0.08);
+}
+
+.upload-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  font-size: 16px;
+  color: var(--cyan);
+  margin-bottom: 2px;
+}
+
+.dropzone strong {
+  font-size: 12.5px;
+  color: #f8fafc;
+}
+
+.dropzone small,
+.toggle-row small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.sample-actions {
+  margin-top: 10px;
+}
+
+.sample-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background: rgba(14, 33, 57, 0.65);
+  color: #cffafe;
+  font: 600 11.5px "Manrope", sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sample-btn:hover {
+  background: rgba(20, 48, 80, 0.85);
+  border-color: var(--cyan);
+}
+
+.sample-btn small {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  color: var(--cyan);
+}
+
+.file-meta {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-sm);
+  padding: 8px 11px;
+  background: #09101d;
+  border: 1px solid var(--line);
+  font: 11px "DM Mono", monospace;
+  color: #e2e8f0;
+}
+
+.file-meta span#fileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-meta button {
+  margin-left: auto;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.file-meta button:hover {
+  color: var(--red);
+}
+
+.file-icon {
+  color: var(--cyan);
+}
+
+.input-preview {
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 10px;
+  max-height: 185px;
+  background: #020617;
+  border: 1px solid var(--line);
+}
+
+.field {
+  margin-top: 18px;
+}
+
+.field label {
+  display: block;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.field select {
+  width: 100%;
+  background: #0a1220;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font: 600 12.5px "Manrope", sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.field select:focus {
+  border-color: var(--cyan);
+}
+
+.toggle-row {
+  margin: 18px 0;
+  padding: 11px 12px;
+  border-radius: 11px;
+  background: rgba(10, 18, 32, 0.6);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.toggle-row:hover {
+  border-color: var(--line-strong);
+}
+
+.toggle-row > span:first-child {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+
+.toggle-row b {
+  font-size: 12px;
+  color: #f8fafc;
+}
+
+.toggle-row input {
+  display: none;
+}
+
+.switch {
+  width: 38px;
+  height: 21px;
+  border-radius: 99px;
+  background: #334155;
+  padding: 3px;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+
+.switch i {
+  display: block;
+  width: 15px;
+  height: 15px;
+  background: #dbeafe;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle-row input:checked + .switch {
+  background: linear-gradient(90deg, var(--cyan), var(--indigo));
+}
+
+.toggle-row input:checked + .switch i {
+  transform: translateX(17px);
+  background: #ffffff;
+}
+
+.generate {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  padding: 13px 16px;
+  background: linear-gradient(105deg, #06b6d4, #6366f1);
+  color: #ffffff;
+  font: 700 13px "Manrope", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(8, 145, 178, 0.32);
+  transition: all 0.2s ease;
+}
+
+.generate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(8, 145, 178, 0.46);
+}
+
+.generate:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
+}
+
+.generate b {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.request-error {
+  color: var(--red);
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+
+/* ==========================================================================
+   6. 4-Stage Pipeline Tracker (Compact & Crisp)
+   ========================================================================== */
+
+.main-stage {
+  min-width: 0;
+}
+
+.pipeline {
+  padding: 22px;
+}
+
+.section-title,
+.output-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.section-title h2,
+.output-title h2 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 4px 0 0;
+  color: #ffffff;
+}
+
+.badge {
+  border: 1px solid #3d4a5e;
+  border-radius: 99px;
+  padding: 5px 11px;
+  font: 500 10px "DM Mono", monospace;
+  letter-spacing: 0.08em;
+  background: rgba(15, 23, 42, 0.65);
+  color: var(--text-secondary);
+}
+
+.badge.active {
+  color: var(--cyan);
+  border-color: rgba(34, 211, 238, 0.45);
+  background: rgba(34, 211, 238, 0.1);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.18);
+}
+
+.badge.done {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.badge.error {
+  color: var(--red);
+  border-color: rgba(251, 113, 133, 0.45);
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.progress-line {
+  height: 4px;
+  background: #1e293b;
+  margin: 18px 0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-line i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan), var(--indigo), var(--green));
+  box-shadow: 0 0 12px var(--cyan);
+  transition: width 0.45s ease;
+}
+
+.stage-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stage-card {
+  position: relative;
+  padding: 14px 15px;
+  border-radius: 13px;
+  border: 1px solid #263349;
+  background: rgba(11, 18, 32, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.25s ease;
+}
+
+.stage-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 13px 13px 0 0;
+  background: transparent;
+  transition: background 0.25s ease;
+}
+
+.stage-card.active {
+  border-color: rgba(34, 211, 238, 0.55);
+  background: linear-gradient(160deg, rgba(16, 42, 64, 0.65), rgba(11, 18, 32, 0.88));
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.12);
+}
+
+.stage-card.active::before {
+  background: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan);
+}
+
+.stage-card.done {
+  border-color: rgba(52, 211, 153, 0.38);
+  background: linear-gradient(160deg, rgba(13, 42, 38, 0.45), rgba(11, 18, 32, 0.82));
+}
+
+.stage-card.done::before {
+  background: var(--green);
+}
+
+.stage-card.error {
+  border-color: rgba(251, 113, 133, 0.5);
+}
+
+.stage-card.error::before {
+  background: var(--red);
+}
+
+.stage-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.stage-index {
+  font: 600 10.5px "DM Mono", monospace;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+}
+
+.stage-state {
+  color: #64748b;
+  font: 500 9px "DM Mono", monospace;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.stage-card.active .stage-state {
+  color: var(--cyan);
+  border-color: rgba(34, 211, 238, 0.4);
+  background: rgba(34, 211, 238, 0.12);
+}
+
+.stage-card.done .stage-state {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.stage-card.error .stage-state {
+  color: var(--red);
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.stage-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.stage-card .stage-model {
+  font: 500 10.5px "DM Mono", monospace;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.pipeline-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pipeline-footer b {
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+.pipeline-footer span:last-child {
+  margin-left: auto;
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   7. Empty State & Render Outputs
+   ========================================================================== */
+
+.empty-state {
+  min-height: 360px;
+  margin-top: 20px;
+  padding: 32px 24px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.empty-state h2 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 18px 0 6px;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 auto;
+  max-width: 480px;
+}
+
+.orbital {
+  height: 76px;
+  width: 76px;
+  border: 1px solid #33445e;
+  border-radius: 50%;
+  margin: auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.orbital i {
+  position: absolute;
+  width: 96px;
+  height: 38px;
+  border: 1px solid rgba(34, 211, 238, 0.38);
+  border-radius: 50%;
+  transform: rotate(35deg);
+}
+
+.orbital i + i {
+  transform: rotate(-35deg);
+  border-color: rgba(129, 140, 248, 0.38);
+}
+
+.orbital b {
+  color: var(--cyan);
+  font-size: 22px;
+}
+
+.outputs {
+  margin-top: 20px;
+}
+
+.output-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.download,
+.sync-play {
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #cffafe;
+  background: rgba(14, 33, 57, 0.85);
+  padding: 9px 14px;
+  border-radius: 9px;
+  font: 600 11.5px "Manrope", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.download:hover,
+.sync-play:hover {
+  background: rgba(20, 48, 82, 0.95);
+  border-color: var(--cyan);
+  color: #ffffff;
+}
+
+.compare-grid,
+.diagnostics-grid,
+.intel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.media-card,
+.chart-card,
+.mouth-card,
+.transcript-card,
+.spectrogram-card {
+  padding: 16px;
+}
+
+.media-card.featured {
+  border-color: rgba(34, 211, 238, 0.38);
+  box-shadow: 0 16px 38px rgba(8, 145, 178, 0.14);
+}
+
+.card-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.card-label span {
+  font: 600 10.5px "DM Mono", monospace;
+  letter-spacing: 0.09em;
+  color: var(--cyan);
+}
+
+.card-label small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.media-card video {
+  background: #020617;
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+}
+
+.chart-container {
+  position: relative;
+  height: 225px;
+  width: 100%;
+}
+
+.chart-card canvas {
+  height: 225px !important;
+  width: 100% !important;
+}
+
+.mouth-card video {
+  width: 100%;
+  background: #020617;
+  border-radius: 10px;
+  aspect-ratio: 2 / 1;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.script-box {
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(9, 15, 28, 0.72);
+  border: 1px solid var(--line);
+  color: #f1f5f9;
+}
+
+.script-box.translated {
+  border-color: rgba(34, 211, 238, 0.25);
+  background: rgba(12, 25, 42, 0.65);
+  margin-bottom: 0;
+}
+
+.translation {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.audio-compare {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.audio-track {
+  background: rgba(9, 15, 28, 0.75);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 10px;
+}
+
+.audio-track span {
+  display: block;
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.audio-track audio {
+  width: 100%;
+  height: 32px;
+}
+
+.spectrogram-card img {
+  width: 100%;
+  border-radius: 10px;
+  min-height: 140px;
+  object-fit: contain;
+  background: #090d16;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+/* ==========================================================================
+   8. Model Telemetry & Benchmark Intelligence
+   ========================================================================== */
+
+.benchmark-hero {
+  margin: 6px 0 22px;
+}
+
+.benchmark-hero h1 {
+  font-size: 28px;
+}
+
+.delta-good {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-card {
+  padding: 18px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.metric-name {
+  font: 600 10.5px "DM Mono", monospace;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.metric-card > div:not(.metric-header) {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.metric-base {
+  color: #7c8ea6;
+  font: 500 10.5px "DM Mono", monospace;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+}
+
+.metric-delta {
+  font: 600 10.5px "DM Mono", monospace;
+  color: var(--green);
+  margin: 10px 0 4px;
+}
+
+.metric-delta.negative {
+  color: var(--red);
+}
+
+.metric-caption {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.loss-card,
+.architecture-card {
+  padding: 22px;
+  min-height: 375px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loss-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 270px;
+  margin-top: 14px;
+}
+
+.loss-card canvas {
+  height: 275px !important;
+  width: 100% !important;
+}
+
+.architecture-card h2 {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 5px 0 10px;
+  color: #ffffff;
+}
+
+.architecture-card > p:not(.eyebrow) {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.68;
+  margin: 0;
+}
+
+.memory-flow {
+  margin: 24px 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.memory-flow span {
+  font: 500 10px "DM Mono", monospace;
+  padding: 8px 11px;
+  background: rgba(14, 33, 57, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  color: #a5f3fc;
+  border-radius: 8px;
+}
+
+.memory-flow i {
+  color: #64748b;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.architecture-notes {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.architecture-notes div {
+  display: grid;
+  gap: 4px;
+}
+
+.architecture-notes b {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--cyan);
+}
+
+.architecture-notes small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   9. Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+  .studio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .controls {
+    position: static;
+  }
+
+  .stage-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 14px;
+  }
+
+  .topbar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .brand {
+    min-width: auto;
+  }
+
+  .health-strip {
+    width: 100%;
+    margin: 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .tabs {
+    order: 3;
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+  }
+
+  .stage-cards,
+  .compare-grid,
+  .diagnostics-grid,
+  .intel-grid,
+  .metric-grid,
+  .audio-compare {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pipeline-footer span:last-child {
+    margin-left: 0;
+    width: 100%;
+  }
+}

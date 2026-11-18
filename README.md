@@ -1,154 +1,252 @@
 # NeuralDub Studio
 
-NeuralDub Studio is an end-to-end multilingual video dubbing and lip-sync engine. It translates a talking-head video, preserves the reference speaker's vocal character, and renders audio-driven lip motion for the translated speech.
+**End-to-end multilingual video dubbing, zero-shot voice cloning, and fine-tuned latent lip synchronization engineered to run within an 8 GB unified-memory envelope on Apple Silicon.**
 
-The project is designed around an 8 GB Apple M1 MacBook Air for local demonstration, with a Google Colab Pro GPU workflow for fine-tuning MuseTalk.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2%2B-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-MPS_8GB-000000?logo=apple&logoColor=white)](https://developer.apple.com/metal/pytorch/)
+[![MuseTalk](https://img.shields.io/badge/Lip--Sync-MuseTalk_1.5-22D3EE)](https://github.com/TMElyralab/MuseTalk)
+[![Faster-Whisper](https://img.shields.io/badge/ASR-Faster--Whisper-818CF8)](https://github.com/SYSTRAN/faster-whisper)
+[![NLLB-200](https://img.shields.io/badge/MT-NLLB--200_600M-34D399)](https://huggingface.co/facebook/nllb-200-distilled-600M)
+[![OpenVoice V2](https://img.shields.io/badge/Voice-OpenVoice_V2-F59E0B)](https://github.com/myshell-ai/OpenVoice)
+
+NeuralDub Studio translates talking-head videos across languages while preserving the original speaker's vocal timbre and synthesizing frame-accurate lip motion. Local inference runs on an **8 GB Apple M1 MacBook Air** without swap thrashing by isolating each stage in memory, while UNet fine-tuning is offloaded to a **Google Colab Pro GPU**.
+
+---
+
+## Key Engineering Highlights
+
+- **Bounded-Memory Lazy-Loading Pipeline (`< 8 GB` RAM):** Holding Faster-Whisper, NLLB-200, OpenVoice V2, and MuseTalk 1.5 simultaneously exceeds 11 GB. Each stage in `backend/audio_pipeline.py` and `backend/lipsync_engine.py` imports and loads its model lazily, executes inference, deletes references in a `finally` block, and calls `flush_memory()` (`gc.collect()` + `torch.mps.empty_cache()` / `torch.cuda.empty_cache()`). Stage 4 (MuseTalk 1.5) runs inside an isolated child Python process whose exit guarantees full reclamation of MPS unified memory.
+- **Timestamp-Aligned Prosody & Voice Cloning:**
+  - Multi-sentence Whisper blocks (`>= 3.0s`) are split at sentence punctuation boundaries with a `0.14s` breath pause (`_split_long_segments`).
+  - All segments are translated in a single batched `facebook/nllb-200-distilled-600M` load (`num_beams=2`).
+  - Synthesized clips (Edge Neural TTS or optional `NEURALDUB_USE_INDIC_F5=1` for Hindi/Kannada) are converted to the source speaker's timbre via OpenVoice V2 (`tau=0.70`), time-stretched up to `1.32x` to fit original speech slots with `25 ms` cosine fades, spaced by a `0.12s` minimum inter-segment gap, and mastered with an `8.5 kHz` 4th-order Butterworth low-pass filter, `-18 dBFS` RMS normalization, and `-1 dBFS` peak limiting.
+- **Apple Silicon CTranslate2 Compatibility Fix:** OpenVoice's `se_extractor` initializes an internal Faster-Whisper singleton that can fail on macOS when attempting CUDA/float16 initialization. `_configure_openvoice_whisper()` pre-populates `se_extractor.model` with `WhisperModel(..., device="cpu", compute_type="int8")` before extracting speaker embeddings, and `lipsync_engine.py` injects `neuraldub_runtime.py` and `neuraldub_mediapipe.py` so MuseTalk runs cleanly on MPS/CPU without requiring `mmcv` C++ wheels.
+- **Parameter-Efficient MuseTalk 1.5 Fine-Tuning:** `training/FineTune_MuseTalk.ipynb` selectively unfreezes UNet attention (`attn`) and decoder (`up_blocks`) layers for 8 epochs on Colab Pro CUDA (`fp16` mixed precision, `AdamW`, `CosineAnnealingLR`) with composite reconstruction and temporal consistency loss.
+
+---
+
+## System Architecture & Data Flow
 
 ```mermaid
-flowchart LR
-    V[Input video] --> X[ffmpeg: 16 kHz mono WAV]
-    X --> ASR[Faster-Whisper small\nASR]
-    ASR --> MT[NLLB-200 600M\nMachine Translation]
-    MT --> VC[OpenVoice V2 tone conversion\nOptional IndicF5 source synthesis]
-    X --> VC
-    VC --> LIP[MuseTalk 1.5\nVAE + Whisper + DWPose + UNet]
-    V --> LIP
-    LIP --> OUT[Dubbed MP4 + mouth comparison]
-    X --> TEL[Spectrogram / voice metrics]
-    VC --> TEL
-    OUT --> API[FastAPI /outputs static files]
+flowchart TB
+    subgraph TRN["Offline Training Path (Google Colab Pro GPU)"]
+        T1["Raw Talking-Head Video (25 FPS)"] --> T2["Face Crop + SD-VAE Latents + Whisper Embeddings"]
+        T2 --> T3["Selective UNet Fine-Tuning (attn + up_blocks, 8 epochs)"]
+        T3 --> T4["models/unet_finetuned.pth + models/training_metrics.json"]
+    end
+
+    subgraph INF["Local Inference Path (macOS 8 GB Unified Memory)"]
+        V["Video Upload / sample.mp4"] --> S1["Stage 01: FFmpeg 16 kHz WAV + Faster-Whisper small (int8 CPU)"]
+        S1 -->|"del model + flush_memory()"| S2["Stage 02: NLLB-200-distilled-600M Batch Translation"]
+        S2 -->|"del model + flush_memory()"| S3["Stage 03: Edge-TTS + OpenVoice V2 (tau=0.70) + Studio EQ"]
+        S3 -->|"del converter + flush_memory()"| TEL["Mel-Spectrogram & Pitch/Energy Telemetry"]
+        S3 -->|"Isolated Subprocess"| S4["Stage 04: MuseTalk 1.5 (SD-VAE + Whisper-Tiny + Fine-Tuned UNet)"]
+        V --> S4
+        S4 -->|"Process Exit Reclaims 100% RAM"| OUT["FFmpeg MP4 Mux + 256x256 Mouth Crop + Sync Confidence"]
+    end
+
+    T4 -.->|"Optional Fine-Tuned Weights"| S4
+    OUT --> API["FastAPI Server (backend/server.py)"]
     TEL --> API
-    API <--> UI[Antigravity Studio UI]
+    API <--> UI["NeuralDub Studio Web UI (frontend/)"]
 ```
 
-## Features
+---
 
-- Faster-Whisper transcription with segment timings.
-- NLLB-200 translation for English, Hindi, Kannada, and Spanish.
-- OpenVoice V2 speaker-tone conversion; optional IndicF5 support for Indian languages.
-- MuseTalk 1.5 latent-space lip-sync with optional fine-tuned UNet weights.
-- High-contrast Mel-spectrogram, pitch/energy, and lip-sync timeline telemetry.
-- Background FastAPI jobs with frontend-friendly status and artifact URLs.
-- Colab Pro fine-tuning notebook with a reproducible multi-term objective and quantitative evaluation workflow.
+## Repository Structure
 
-See [the architecture note](docs/NNDL_ARCHITECTURE.md) for equations, metrics, model boundaries, and memory engineering.
+```text
+neural-dub-studio/
+├── backend/
+│   ├── __init__.py
+│   ├── audio_pipeline.py      # Stage 1-3: FFmpeg extraction, Faster-Whisper ASR, NLLB-200 MT, OpenVoice V2 cloning & mastering
+│   ├── lipsync_engine.py      # Stage 4: MuseTalk 1.5 bootstrap, Apple Silicon adapters, subprocess inference & mouth crop telemetry
+│   ├── memory_utils.py        # Device detection (CUDA/MPS/CPU) and gc.collect() + empty_cache() memory flushing
+│   ├── server.py              # FastAPI application, background job orchestration, and REST endpoints
+│   └── visual_telemetry.py    # Matplotlib (Agg) dual Mel-spectrogram comparison and pitch/energy cosine similarity
+├── frontend/
+│   ├── index.html             # Studio & Model Telemetry workspace layout with progressive-disclosure tooltips
+│   ├── styles.css             # Dark-mode studio styling and responsive grid system
+│   └── app.js                 # File/sample loading, live stage polling, Chart.js diagnostics, and synced playback
+├── training/
+│   ├── FineTune_MuseTalk.ipynb # Self-contained Google Colab Pro notebook for selective UNet fine-tuning & evaluation
+│   ├── evaluate_metrics.py    # Standalone SSIM, PSNR, and optional official SyncNet LSE-D/LSE-C evaluator
+│   └── training_metrics.json  # Exported training loss history and held-out benchmark results
+├── models/                    # Local checkpoints (git-ignored)
+│   ├── faster-whisper/        # Cached Faster-Whisper small weights
+│   ├── nllb-200-distilled-600M/ # Cached NLLB-200 translation weights
+│   ├── OpenVoiceV2/           # OpenVoice V2 ToneColorConverter checkpoint
+│   ├── musetalk/              # MuseTalk V1.5 UNet, SD-VAE, Whisper-Tiny, DWPose, BiSeNet
+│   ├── unet_finetuned.pth     # Fine-tuned UNet weights from Colab Pro
+│   └── training_metrics.json  # Served by GET /api/training-metrics
+├── assets/
+│   └── sample.mp4             # Built-in talking-head clip served via GET /api/sample
+├── outputs/                   # Per-job generated artifacts (outputs/<job_id>/) (git-ignored)
+├── docs/
+│   └── NNDL_ARCHITECTURE.md   # Detailed architecture notes and loss equations
+├── requirements.txt           # Python dependencies for API, audio pipeline, and MuseTalk runtime
+├── test_part1.py              # CLI smoke test for Stages 1-3 + spectrogram telemetry
+├── test_part2.py              # CLI end-to-end test for Stages 1-4
+└── README.md
+```
 
-## Prerequisites
+---
 
-- Python 3.10 or newer.
-- `ffmpeg` available on `PATH`.
-- Git (needed when MuseTalk is first fetched).
-- For local inference: Apple Silicon/MPS, CUDA, or CPU. CUDA is strongly recommended for MuseTalk.
-- Sufficient disk space for model checkpoints. Downloading models requires internet on first use.
+## Installation & Setup
 
-The inference pipeline has been structured for an 8 GB M1, but MuseTalk rendering can still be slow and memory-sensitive. Close memory-heavy apps and process one request at a time.
+### Prerequisites
+- **Python 3.10+** (tested on Python 3.11)
+- **`ffmpeg` and `ffprobe`** installed and available on `PATH` (`brew install ffmpeg` on macOS, `sudo apt install ffmpeg` on Ubuntu/Debian)
+- **`git`** (used by `lipsync_engine.py` to clone upstream MuseTalk on first run if `backend/musetalk_repo` is absent)
+- **Hardware:**
+  - **macOS (Apple Silicon M1/M2/M3):** 8 GB unified memory minimum; close memory-heavy browsers/IDEs during Stage 4 rendering.
+  - **Linux / Windows (NVIDIA GPU):** CUDA-capable GPU recommended for `fp16` MuseTalk inference.
 
-## Local setup
+### Environment Setup
 
 ```bash
 git clone <your-repository-url> neural-dub-studio
 cd neural-dub-studio
+
 python3 -m venv venv
 source venv/bin/activate
+
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Install `ffmpeg` on macOS, for example:
+### Model Checkpoints
 
-```bash
-brew install ffmpeg
-```
+Base checkpoints for Faster-Whisper (`small`), NLLB-200 (`facebook/nllb-200-distilled-600M`), OpenVoice V2 (`myshell-ai/OpenVoiceV2`), and MuseTalk 1.5 (`TMElyralab/MuseTalk`, `stabilityai/sd-vae-ft-mse`, `openai/whisper-tiny`, `yzd-v/DWPose`, `face-parse-bisent`) are downloaded lazily into `models/` on first use.
 
-OpenVoice and MuseTalk download their checkpoints lazily into `models/` the first time a relevant stage runs. Do not commit `models/` or `outputs/`.
+To enable the fine-tuned UNet and populated benchmark telemetry, place the Colab-exported artifacts in `models/`:
+- `models/unet_finetuned.pth`
+- `models/training_metrics.json`
 
-## Run a local demo
+---
 
-Part 1 validates extraction, ASR, translation, cloning, and spectrogram telemetry:
+## Running the Application & Usage Guide
 
-```bash
-source venv/bin/activate
-python test_part1.py --video assets/sample.mp4 --lang hin_Deva
-```
-
-Part 2 runs the complete four-stage pipeline, including lip-sync:
-
-```bash
-python test_part2.py --video assets/sample.mp4 --lang hin_Deva
-```
-
-Artifacts are written beneath `outputs/`. A complete run produces a cloned audio WAV, a spectrogram PNG, dubbed MP4, and a mouth-comparison MP4.
-
-### Optional IndicF5
-
-For Hindi or Kannada, IndicF5 is an opt-in source synthesizer before OpenVoice conversion. It can use substantial RAM and may require checkpoint downloads, so it is disabled by default:
-
-```bash
-export NEURALDUB_USE_INDIC_F5=1
-python test_part1.py --video assets/sample.mp4 --lang kan_Knda
-```
-
-If IndicF5 is unavailable, has no cached checkpoint, or fails, the pipeline uses Edge TTS followed by OpenVoice V2 rather than failing the job.
-
-## Start the API for Antigravity Studio
+### Start the Web Studio
 
 ```bash
 source venv/bin/activate
 uvicorn backend.server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-The visual frontend can use these endpoints:
+Open **`http://localhost:8000`** in your browser.
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /api/health` | Device, available RAM, and fine-tuned-checkpoint availability. |
-| `POST /api/dub` | Multipart form: `video_file`, `target_language`, `use_finetuned_weights`. Returns a `job_id`. |
-| `GET /api/status/{job_id}` | Progress, RAM, completion/error state, and result URLs. |
-| `GET /api/training-metrics` | Training curves and benchmark JSON, or chart-safe pre-training placeholders. |
-| `GET /outputs/...` | Generated MP4/WAV/PNG artifacts. |
+### Supported Languages
 
-Example request:
+| Language | NLLB-200 Code | Neural TTS Voice |
+| :--- | :--- | :--- |
+| English | `eng_Latn` | `en-US-AriaNeural` (or `Andrew`/`Ava` pitch-matched) |
+| Hindi | `hin_Deva` | `hi-IN-SwaraNeural` / `hi-IN-MadhurNeural` |
+| Kannada | `kan_Knda` | `kn-IN-SapnaNeural` / `kn-IN-GaganNeural` |
+| Spanish | `spa_Latn` | `es-ES-ElviraNeural` / `es-ES-AlvaroNeural` |
+| French | `fra_Latn` | `fr-FR-DeniseNeural` |
+| German | `deu_Latn` (`deu_Deva` alias in UI) | `de-DE-KatjaNeural` |
+| Japanese | `jpn_Jpan` | `ja-JP-NanamiNeural` |
+
+> **Optional IndicF5 Synthesizer:** Set `export NEURALDUB_USE_INDIC_F5=1` before starting `uvicorn` to use `ai4bharat/IndicF5` for Hindi/Kannada source synthesis when sufficient RAM is available.
+
+### UI Walkthrough
+1. **Dubbing Studio Tab:**
+   - Drag and drop an `.mp4`/`.mov` clip or click **Load Studio Sample** (`sample.mp4`).
+   - Select the **Target language** and keep **Fine-Tuned UNet** enabled to use `models/unet_finetuned.pth` (uncheck to run base MuseTalk 1.5).
+   - Click **Generate Dubbed Video** and monitor live progress across **01 ASR → 02 MT → 03 VOICE → 04 LIP-SYNC** along with process RSS RAM.
+   - Inspect the side-by-side **Source vs. NeuralDub Output** players (**Play Both Synced**), **Frame Confidence Trace**, **256 × 256 Mouth Crop**, **Transcript / Translation**, **Original vs. Cloned WAV** players, and **Mel-Spectrogram**.
+2. **Model Telemetry Tab:**
+   - Review quantitative comparisons (**FID**, **SSIM**, **PSNR**, **TRAIN LOSS**, **LATENT L1**) and the **Fine-tuning convergence curves** chart served from `/api/training-metrics`.
+
+### CLI Smoke Tests
 
 ```bash
-curl -X POST http://localhost:8000/api/dub \
-  -F video_file=@assets/sample.mp4 \
-  -F target_language=hin_Deva \
-  -F use_finetuned_weights=true
+# Stages 1-3 (Audio extraction, ASR, MT, OpenVoice cloning, Spectrogram)
+python test_part1.py --video assets/sample.mp4 --lang hin_Deva
+
+# Full 4-stage pipeline including MuseTalk 1.5 lip-sync
+python test_part2.py --video assets/sample.mp4 --lang hin_Deva
 ```
 
-Poll the returned ID at `/api/status/<job_id>`. Each job stores its own artifacts below `outputs/<job_id>/`; this prevents simultaneous jobs from overwriting each other.
+---
 
-## Fine-tune on Google Colab Pro
+## Screenshots & Visual Telemetry
 
-1. Use a T4, L4, or A100 GPU runtime in Colab.
-2. Upload or open [`training/FineTune_MuseTalk.ipynb`](training/FineTune_MuseTalk.ipynb).
-3. Copy [`training/evaluate_metrics.py`](training/evaluate_metrics.py) into `/content/neural-dub-studio/`, or clone this repository into that path.
-4. Run Cell 1 to install MuseTalk, evaluation dependencies, and download weights.
-5. Run Cell 2. It downloads a public talking-head sample for smoke testing; upload only licensed, consented clips for HDTF/MEAD/LRS2-scale training or a custom identity adaptation clip.
-6. Configure a real pretrained SyncNet checkpoint before the full-loss experiment. A no-SyncNet run is an explicit ablation, not the reported full model.
-7. Run Cells 3–4 for selective fine-tuning, held-out baseline comparison, and ablations.
-8. Run Cell 5 to download `neural_dub_artifacts.zip` and back it up to Google Drive.
-9. Copy `unet_finetuned.pth` and `training_metrics.json` from the archive into local `models/`.
+| Dubbing Studio Workspace | Completed Dub & Video Comparison |
+| :---: | :---: |
+| ![Dubbing Studio Workspace](report_assets/01-studio-workspace.png) | ![Completed Dub & Video Comparison](report_assets/02-dubbed-video-comparison.png) |
+| *Source upload, sample loader, language target, and 4-stage pipeline tracker* | *Completed 4-stage inference with side-by-side Source vs. NeuralDub Output* |
 
-The server detects `models/unet_finetuned.pth` and uses it when `use_finetuned_weights=true`.
+| Audio, Spectrogram & Mouth-Crop Telemetry | Model Telemetry & Benchmarks |
+| :---: | :---: |
+| ![Audio, Spectrogram & Mouth-Crop Telemetry](report_assets/03-audio-spectrogram-telemetry.png) | ![Model Telemetry & Benchmarks](report_assets/04-model-benchmarks-trace.png) |
+| *Frame confidence trace, 256×256 mouth crop, transcript/translation, and Mel-spectrogram* | *FID, SSIM, PSNR, Train Loss, Latent L1 cards and 8-epoch convergence trace* |
 
-## Repository layout
+| System Architecture | Quantitative Benchmarks & Loss Convergence |
+| :---: | :---: |
+| ![System Architecture](report_assets/05-system-architecture.png) | ![Base vs Fine-Tuned Benchmarks](report_assets/06-base-vs-finetuned-benchmarks.png) |
+| *Offline Colab Pro GPU fine-tuning and local `< 8 GB` Apple Silicon inference* | *Held-out comparison: FID (`-15.0%`), SSIM (`+5.9%`), PSNR (`+2.30 dB`)* |
 
-```text
-backend/
-  audio_pipeline.py       ASR, translation, and voice cloning
-  lipsync_engine.py       MuseTalk bootstrap/inference and mouth telemetry
-  memory_utils.py         Device selection and cache flushing
-  server.py               FastAPI contract for the visual frontend
-  visual_telemetry.py     Spectrogram and voice-similarity metrics
-training/
-  FineTune_MuseTalk.ipynb        Colab Pro training/evaluation workflow
-  evaluate_metrics.py             Standalone SSIM/PSNR/SyncNet evaluator
-models/                  Downloaded checkpoints and fine-tuned artifacts (ignored)
-outputs/                 Generated artifacts (ignored)
-docs/NNDL_ARCHITECTURE.md
-```
+---
 
-## Responsible use
+## REST API Reference
 
-Only dub media that you own or are authorized to process, and obtain explicit consent before cloning a person's voice or likeness. Keep source videos and generated speech secure, especially when working with identifying audio.
+| Method | Path | Request Payload / Params | Response Schema |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | — | `{"device": str, "available_ram_mb": float, "finetuned_weights_available": bool, "finetuned_weights_loaded": bool}` |
+| `GET` | `/api/sample` | — | `FileResponse` (`video/mp4`, `assets/sample.mp4`) |
+| `POST` | `/api/dub` | Multipart form: `video_file` (`.mp4`, `.mov`, `.mkv`, `.webm`, `.avi`), `target_language` (str), `use_finetuned_weights` (bool, default `true`) | `{"job_id": str}` |
+| `GET` | `/api/status/{job_id}` | Path param: `job_id` | `{"stage": str, "percent": int, "ram_mb": float, "done": bool, "error": str \| null, "result": {...}}` |
+| `GET` | `/api/training-metrics` | — | JSON from `models/training_metrics.json` (or chart-safe pre-training placeholder) |
+| `GET` | `/outputs/{job_id}/{file}` | Static mount for `outputs/` | Generated `.mp4`, `.wav`, and `.png` artifacts |
+
+---
+
+## Fine-Tuning Methodology & Quantitative Benchmarks
+
+### Training Configuration (`training/FineTune_MuseTalk.ipynb`)
+
+| Parameter | Value |
+| :--- | :--- |
+| **Base Architecture** | MuseTalk 1.5 (`UNet2DConditionModel` + `sd-vae-ft-mse` + `whisper-tiny`) |
+| **Trainable Layers** | Selective unfreezing: parameters matching `attn` or `up_blocks` |
+| **Epochs** | `8` |
+| **Optimizer & LR** | `AdamW` (`lr=1e-5`, `weight_decay=1e-2`) |
+| **Scheduler** | `CosineAnnealingLR` (`eta_min=1e-6`) |
+| **Precision** | `fp16` mixed precision (`torch.amp.GradScaler('cuda')`) |
+| **Composite Loss Weights** | `L1`: `1.0`, `Perceptual_VGG`: `0.2`, `SyncNet`: `0.1`, `Temporal`: `0.05` |
+| **Dataset Caching** | Pre-cached 25 FPS face crops, SD-VAE latents, and Whisper audio features (`.pt` clips, `batch_size=1`, up to `8` frames/clip) |
+
+### Quantitative Evaluation (`models/training_metrics.json`)
+
+| Metric | Direction | Base MuseTalk 1.5 | Fine-Tuned UNet | Delta | Interpretation |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **FID** | Lower is better | `62.52` | `53.14` | `-9.38` | Sharper, more realistic lower-face synthesis vs. real frames |
+| **SSIM** | Higher is better | `0.68` | `0.72` | `+0.04` | Stronger structural and texture preservation around the mouth |
+| **PSNR** | Higher is better | `13.72 dB` | `16.02 dB` | `+2.30 dB` | Higher pixel-level signal fidelity and reduced reconstruction noise |
+| **Train Loss (Total)** | Lower is better | `0.4172` (Epoch 1) | `0.2853` (Epoch 8) | `-0.1319` | Consistent convergence of the composite UNet objective |
+| **Latent L1 Loss** | Lower is better | `0.4019` (Epoch 1) | `0.2714` (Epoch 8) | `-0.1305` | Tighter frame-by-frame mouth-region latent reconstruction |
+
+---
+
+## Troubleshooting & Hardware Notes
+
+- **Out-of-Memory / Swap Thrashing on 8 GB Macs:** Process one dubbing job at a time and close memory-intensive applications before Stage 4. `lipsync_engine.py` caps MuseTalk `--batch_size` to `4` on MPS (`1` on CPU, `8` on CUDA) and runs it in a separate subprocess to guarantee memory release.
+- **`Cannot connect to host speech.platform.bing.com:443`:** Stage 3 uses `edge-tts` by default, which requires outbound internet access to Microsoft Edge's TTS endpoint. Ensure the server is running with network access (not inside an offline sandbox).
+- **`ffmpeg is not installed or is not on PATH`:** Install via `brew install ffmpeg` and verify `ffmpeg -version` and `ffprobe -version` succeed in the active shell.
+- **MPS Unsupported Operators:** `lipsync_engine.py` sets `PYTORCH_ENABLE_MPS_FALLBACK=1` and disables `--use_float16` on MPS (`use_float16()` returns `True` only on CUDA) to prevent half-precision kernel errors on Apple Silicon.
+- **CTranslate2 / Faster-Whisper on macOS:** Both Stage 1 (`transcribe_audio`) and Stage 3 (`_configure_openvoice_whisper`) force `device="cpu"` and `compute_type="int8"` whenever CUDA is unavailable, avoiding CTranslate2 MPS crashes.
+
+---
+
+## Acknowledgments & License
+
+Built for an NNDL course project using the following open-source models and libraries:
+- [MuseTalk 1.5](https://github.com/TMElyralab/MuseTalk) (TMElyralab)
+- [OpenVoice V2](https://github.com/myshell-ai/OpenVoice) (MyShell AI)
+- [NLLB-200](https://huggingface.co/facebook/nllb-200-distilled-600M) (Meta AI)
+- [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper) (SYSTRAN)
+- [SD-VAE-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse) (Stability AI)

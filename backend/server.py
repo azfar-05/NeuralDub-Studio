@@ -14,10 +14,10 @@ from typing import Any
 import psutil
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.audio_pipeline import (SUPPORTED_LANGUAGES, clone_and_synthesize, extract_audio,
-                                    transcribe_audio, translate_text)
+from backend.audio_pipeline import SUPPORTED_LANGUAGES, run_audio_pipeline
 from backend.lipsync_engine import run_lipsync
 from backend.memory_utils import get_device
 from backend.visual_telemetry import generate_spectrogram_comparison
@@ -58,19 +58,17 @@ def _source_language(whisper_language: str) -> str:
 def _process_dub(job_id: str, video_path: Path, target_language: str, use_finetuned_weights: bool) -> None:
     """Run one job sequentially; every model stage frees memory before the next."""
     job_dir = OUTPUTS_DIR / job_id
-    original = job_dir / "original_audio.wav"
     cloned = job_dir / "cloned_speech.wav"
     spectrogram = job_dir / "spectrogram.png"
     dubbed = job_dir / "dubbed_video.mp4"
     try:
-        _update(job_id, "extracting_audio", 5)
-        extract_audio(str(video_path), str(original))
-        _update(job_id, "transcribing", 20)
-        transcript = transcribe_audio(str(original))
-        _update(job_id, "translating", 42)
-        translation = translate_text(transcript["text"], _source_language(transcript["language"]), target_language)
-        _update(job_id, "cloning_voice", 60)
-        clone_and_synthesize(translation, str(original), target_language, str(cloned))
+        stage_progress = {"extracting_audio": 5, "transcribing": 20, "translating": 42, "cloning_voice": 60}
+        def audio_progress(stage: str) -> None:
+            _update(job_id, stage, stage_progress[stage])
+        audio_result = run_audio_pipeline(str(video_path), target_language, str(cloned), audio_progress)
+        original = Path(audio_result["original_wav"])
+        transcript = audio_result["transcript"]
+        translation = audio_result["translation"]
         _update(job_id, "generating_telemetry", 70)
         voice_metrics = generate_spectrogram_comparison(str(original), str(cloned), str(spectrogram))
         _update(job_id, "lip_syncing", 78)
@@ -81,6 +79,8 @@ def _process_dub(job_id: str, video_path: Path, target_language: str, use_finetu
             "dubbed_video_url": _url(Path(result["dubbed_video"])),
             "mouth_zoom_url": _url(Path(result["mouth_zoom"])),
             "spectrogram_url": _url(spectrogram),
+            "original_audio_url": _url(original),
+            "cloned_audio_url": _url(cloned),
             "transcript": transcript,
             "translation": translation,
             "voice_metrics": voice_metrics,
@@ -132,6 +132,15 @@ def status(job_id: str) -> Job:
         if job is None:
             raise HTTPException(status_code=404, detail="Unknown job ID")
         return dict(job)
+
+
+@app.get("/api/sample")
+def sample_video() -> FileResponse:
+    """Serve the built-in talking-head sample video for one-click demo evaluation."""
+    sample_path = PROJECT_ROOT / "assets" / "sample.mp4"
+    if not sample_path.is_file():
+        raise HTTPException(status_code=404, detail="Sample video not found in assets/sample.mp4")
+    return FileResponse(str(sample_path), media_type="video/mp4", filename="sample.mp4")
 
 
 @app.get("/api/training-metrics")

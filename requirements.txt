@@ -10,7 +10,9 @@ transformers>=4.40
 sentencepiece>=0.2
 faster-whisper>=1.0
 huggingface_hub>=0.22
+gdown>=5.2
 edge-tts>=6.1
+mediapipe>=0.10.14
 # Optional Indian-language zero-shot source synthesizer.  Enable at runtime
 # with NEURALDUB_USE_INDIC_F5=1 only on machines with enough free RAM.
 f5-tts>=0.1
@@ -23,6 +25,7 @@ git+https://github.com/myshell-ai/OpenVoice.git
 
 # Part 2 comparison telemetry and MuseTalk runtime dependencies
 opencv-python-headless>=4.9
+opencv-python>=4.9; platform_system == "Darwin"
 pyyaml>=6.0
 diffusers>=0.27
 accelerate>=0.28
@@ -34,3 +37,11 @@ safetensors>=0.4
 scikit-image>=0.22
 lpips>=0.1.4
 pytorch-fid>=0.3
+imageio[ffmpeg]>=2.34
+imageio-ffmpeg>=0.5
+ffmpeg-python>=0.2
+soundfile>=0.12
+# MuseTalk uses a bundled MediaPipe/OpenCV landmark fallback on macOS, so
+# OpenMMLab/mmcv C++ wheels are intentionally optional rather than required.
+# Install mmengine, mmcv and mmpose manually only for native DWPose execution.
+chumpy>=0.70

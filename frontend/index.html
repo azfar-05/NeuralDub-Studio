@@ -3,79 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NeuralDub Studio — AI Dubbing & Lip-Sync</title>
+  <title>NeuralDub Studio — AI Dubbing &amp; Lip-Sync</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
   <main class="shell">
     <header class="topbar glass">
-      <div class="brand"><span class="brand-mark">N</span><div><p>NEURALDUB</p><span>STUDIO ENGINE</span></div></div>
+      <div class="brand">
+        <span class="brand-mark">N</span>
+        <div>
+          <p>NEURALDUB</p>
+          <span>MULTIMODAL DUBBING STUDIO</span>
+        </div>
+        <button
+          type="button"
+          class="info-tip"
+          aria-label="About NeuralDub Studio"
+          data-tip="End-to-end multilingual video dubbing with zero-shot voice cloning and fine-tuned latent lip-sync—engineered to run sequentially within an 8 GB Apple Silicon unified-memory budget."
+        >i</button>
+      </div>
+
       <nav class="tabs" aria-label="Workspace">
         <button class="tab active" data-tab="studio">Dubbing Studio</button>
         <button class="tab" data-tab="benchmarks">Model Telemetry</button>
       </nav>
+
       <div class="health-strip" aria-live="polite">
-        <div class="health-item"><i class="status-dot"></i><span id="backendDevice">CONNECTING</span></div>
-        <div class="health-item mono">RAM <b id="availableRam">—</b></div>
-        <div class="health-item checkpoint"><span class="checkpoint-icon">✦</span><span id="checkpointStatus">CHECKPOINT UNKNOWN</span></div>
+        <div class="health-item" title="Active compute backend">
+          <i class="status-dot"></i>
+          <span id="backendDevice">CONNECTING</span>
+        </div>
+        <div class="health-item mono" title="Available unified memory">
+          RAM <b id="availableRam">—</b>
+        </div>
+        <div class="health-item checkpoint" title="Active MuseTalk 1.5 UNet weights">
+          <span class="checkpoint-icon">✦</span>
+          <span id="checkpointStatus">CHECKPOINT UNKNOWN</span>
+        </div>
       </div>
     </header>
 
     <section id="studio" class="workspace active">
       <div class="studio-grid">
         <aside class="controls glass">
-          <div class="panel-heading"><p class="eyebrow">01 / SOURCE</p><h1>Build a new dub</h1><p>Upload a talking-head source and direct the voice and latent render pipeline.</p></div>
+          <div class="panel-heading">
+            <p class="eyebrow">01 / SOURCE</p>
+            <h1>Build a new dub</h1>
+            <p>Upload a talking-head clip or load the studio sample to run the 4-stage dubbing pipeline.</p>
+          </div>
+
           <label id="dropzone" class="dropzone" for="videoInput">
             <input id="videoInput" type="file" accept="video/mp4,video/quicktime,.mp4,.mov" hidden />
-            <span class="upload-icon">↑</span><strong>Drop video source</strong><small>MP4 or MOV · local preview ready</small>
+            <span class="upload-icon">↑</span>
+            <strong>Drop video source</strong>
+            <small>MP4 or MOV · instant local preview</small>
           </label>
-          <div id="fileMeta" class="file-meta hidden"><span class="file-icon">▣</span><span id="fileName"></span><button id="clearFile" aria-label="Remove source">×</button></div>
+
+          <div class="sample-actions">
+            <button id="loadSample" type="button" class="sample-btn">
+              <span>✦ Load Studio Sample</span>
+              <small>sample.mp4</small>
+            </button>
+          </div>
+
+          <div id="fileMeta" class="file-meta hidden">
+            <span class="file-icon">▣</span>
+            <span id="fileName"></span>
+            <button id="clearFile" type="button" aria-label="Remove source">×</button>
+          </div>
+
           <video id="inputPreview" class="input-preview hidden" controls muted playsinline></video>
-          <div class="field"><label for="language">Target language</label><select id="language">
-            <option value="hin_Deva">Hindi — hin_Deva</option><option value="kan_Knda">Kannada — kan_Knda</option>
-            <option value="spa_Latn">Spanish — spa_Latn</option><option value="fra_Latn">French — fra_Latn</option>
-            <option value="deu_Deva">German — deu_Deva</option><option value="jpn_Jpan">Japanese — jpn_Jpan</option>
-          </select></div>
-          <label class="toggle-row"><span><b>Fine-Tuned UNet</b><small>Use unet_finetuned.pth when available</small></span><input id="fineTuned" type="checkbox" checked /><span class="switch"><i></i></span></label>
-          <button id="generateButton" class="generate"><span>Generate Dubbed Video</span><b>→</b></button>
+
+          <div class="field">
+            <label for="language">Target language</label>
+            <select id="language">
+              <option value="hin_Deva">Hindi — hin_Deva</option>
+              <option value="kan_Knda">Kannada — kan_Knda</option>
+              <option value="spa_Latn">Spanish — spa_Latn</option>
+              <option value="fra_Latn">French — fra_Latn</option>
+              <option value="deu_Deva">German — deu_Deva</option>
+              <option value="jpn_Jpan">Japanese — jpn_Jpan</option>
+            </select>
+          </div>
+
+          <label class="toggle-row">
+            <span>
+              <span class="label-with-tip">
+                <b>Fine-Tuned UNet</b>
+                <button
+                  type="button"
+                  class="info-tip"
+                  aria-label="Fine-Tuned UNet details"
+                  data-tip="Uses our Colab-tuned unet_finetuned.pth checkpoint for sharper mouth reconstruction and lower latent L1 error; uncheck to compare against base MuseTalk 1.5."
+                >i</button>
+              </span>
+              <small>Use unet_finetuned.pth when available</small>
+            </span>
+            <input id="fineTuned" type="checkbox" checked />
+            <span class="switch"><i></i></span>
+          </label>
+
+          <button id="generateButton" class="generate" type="button">
+            <span>Generate Dubbed Video</span>
+            <b>→</b>
+          </button>
+
           <p id="requestError" class="request-error" role="alert"></p>
         </aside>
 
         <div class="main-stage">
           <section class="pipeline glass">
-            <div class="section-title"><div><p class="eyebrow">LIVE PIPELINE</p><h2>Inference orchestration</h2></div><span id="jobStatus" class="badge neutral">IDLE</span></div>
-            <div class="progress-line"><i id="overallProgress"></i></div>
-            <div class="stage-cards">
-              <article class="stage-card" data-stage="stage1"><span class="stage-index">01</span><div><h3>Speech Recognition</h3><p>Faster-Whisper</p></div><span class="stage-state">WAITING</span></article>
-              <article class="stage-card" data-stage="stage2"><span class="stage-index">02</span><div><h3>Neural Translation</h3><p>NLLB-200</p></div><span class="stage-state">WAITING</span></article>
-              <article class="stage-card" data-stage="stage3"><span class="stage-index">03</span><div><h3>Voice Cloning</h3><p>OpenVoice V2</p></div><span class="stage-state">WAITING</span></article>
-              <article class="stage-card" data-stage="stage4"><span class="stage-index">04</span><div><h3>Latent Lip-Sync</h3><p>MuseTalk 1.5</p></div><span class="stage-state">WAITING</span></article>
+            <div class="section-title">
+              <div class="title-with-tip">
+                <div>
+                  <p class="eyebrow">LIVE PIPELINE</p>
+                  <h2>Inference orchestration</h2>
+                </div>
+                <button
+                  type="button"
+                  class="info-tip"
+                  aria-label="Bounded-memory pipeline details"
+                  data-tip="Runs strictly within an 8 GB unified-memory budget: each heavy model loads lazily for one stage, then runs gc.collect() and torch.mps.empty_cache() before the next stage begins."
+                >i</button>
+              </div>
+              <span id="jobStatus" class="badge neutral">IDLE</span>
             </div>
-            <div class="pipeline-footer"><span class="mono">JOB <b id="jobId">—</b></span><span class="mono">PROCESS RAM <b id="jobRam">—</b></span><span id="stageDescription">Ready for source media.</span></div>
+
+            <div class="progress-line" role="progressbar" aria-label="Pipeline progress">
+              <i id="overallProgress"></i>
+            </div>
+
+            <div class="stage-cards">
+              <article class="stage-card" data-stage="stage1">
+                <div class="stage-card-top">
+                  <span class="stage-index">01 · ASR</span>
+                  <span class="stage-state">WAITING</span>
+                </div>
+                <div class="stage-card-body">
+                  <div class="stage-title-row">
+                    <h3>Speech Recognition</h3>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="ASR Stage Details"
+                      data-tip="Extracts 16 kHz mono audio and transcribes speech with sentence-level timestamps using Faster-Whisper (int8 on CPU)."
+                    >i</button>
+                  </div>
+                  <p class="stage-model">Faster-Whisper</p>
+                </div>
+              </article>
+
+              <article class="stage-card" data-stage="stage2">
+                <div class="stage-card-top">
+                  <span class="stage-index">02 · MT</span>
+                  <span class="stage-state">WAITING</span>
+                </div>
+                <div class="stage-card-body">
+                  <div class="stage-title-row">
+                    <h3>Neural Translation</h3>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="MT Stage Details"
+                      data-tip="Translates each segment into the target language using NLLB-200 while preserving natural clause boundaries."
+                    >i</button>
+                  </div>
+                  <p class="stage-model">NLLB-200</p>
+                </div>
+              </article>
+
+              <article class="stage-card" data-stage="stage3">
+                <div class="stage-card-top">
+                  <span class="stage-index">03 · VOICE</span>
+                  <span class="stage-state">WAITING</span>
+                </div>
+                <div class="stage-card-body">
+                  <div class="stage-title-row">
+                    <h3>Voice Cloning</h3>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="Voice Cloning Stage Details"
+                      data-tip="Synthesizes natural pacing with breath gaps and clones the original speaker's vocal timbre (tau=0.70) with studio EQ."
+                    >i</button>
+                  </div>
+                  <p class="stage-model">OpenVoice V2</p>
+                </div>
+              </article>
+
+              <article class="stage-card" data-stage="stage4">
+                <div class="stage-card-top">
+                  <span class="stage-index">04 · LIP-SYNC</span>
+                  <span class="stage-state">WAITING</span>
+                </div>
+                <div class="stage-card-body">
+                  <div class="stage-title-row">
+                    <h3>Latent Lip-Sync</h3>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="Lip-Sync Stage Details"
+                      data-tip="Renders lip-synced lower-face frames conditioned on audio features using our fine-tuned MuseTalk 1.5 UNet (fp16 / Apple Silicon MPS)."
+                    >i</button>
+                  </div>
+                  <p class="stage-model">MuseTalk 1.5</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="pipeline-footer">
+              <span class="mono">JOB <b id="jobId">—</b></span>
+              <span class="mono">PROCESS RAM <b id="jobRam">—</b></span>
+              <span id="stageDescription">Ready for source media.</span>
+            </div>
           </section>
 
-          <section id="emptyState" class="empty-state glass"><div class="orbital"><i></i><i></i><b>✦</b></div><h2>Precision dubbing, from voice to frame.</h2><p>Load a source video to initialize the multimodal render pipeline.</p></section>
+          <section id="emptyState" class="empty-state glass">
+            <div class="orbital"><i></i><i></i><b>✦</b></div>
+            <h2>Precision dubbing, from voice to frame.</h2>
+            <p>Load a source video to initialize the 4-stage voice cloning &amp; latent lip-sync pipeline.</p>
+          </section>
 
           <section id="outputs" class="outputs hidden">
-            <div class="output-title"><div><p class="eyebrow">RENDER COMPLETE</p><h2>Output & diagnostics</h2></div><a id="downloadDub" class="download" download>Download MP4 ↓</a></div>
+            <div class="output-title">
+              <div>
+                <p class="eyebrow">RENDER COMPLETE</p>
+                <h2>Output &amp; diagnostics</h2>
+              </div>
+              <div class="output-actions">
+                <button id="playBoth" type="button" class="sync-play">▶ &nbsp; Play Both Synced</button>
+                <a id="downloadDub" class="download" download>Download MP4 ↓</a>
+              </div>
+            </div>
+
             <div class="compare-grid">
-              <article class="media-card glass"><div class="card-label"><span>SOURCE</span><small>Original video</small></div><video id="sourceOutput" controls playsinline></video></article>
-              <article class="media-card glass featured"><div class="card-label"><span>NEURALDUB OUTPUT</span><small>Latent lip-sync render</small></div><video id="dubbedOutput" controls playsinline></video></article>
+              <article class="media-card glass">
+                <div class="card-label">
+                  <span>SOURCE</span>
+                  <small>Original video</small>
+                </div>
+                <video id="sourceOutput" controls playsinline></video>
+              </article>
+
+              <article class="media-card glass featured">
+                <div class="card-label">
+                  <span>NEURALDUB OUTPUT</span>
+                  <small>Cloned voice + latent lip-sync</small>
+                </div>
+                <video id="dubbedOutput" controls playsinline></video>
+              </article>
             </div>
-            <button id="playBoth" class="sync-play">▶ &nbsp; Play Both Synced</button>
+
             <div class="diagnostics-grid">
-              <article class="chart-card glass"><div class="card-label"><span>FRAME CONFIDENCE</span><small>Lip-sync alignment</small></div><canvas id="syncChart"></canvas></article>
-              <article class="mouth-card glass"><div class="card-label"><span>256 × 256 MOUTH CROP</span><small>Source / synced articulation</small></div><video id="mouthZoom" controls playsinline></video></article>
+              <article class="chart-card glass">
+                <div class="card-label">
+                  <span class="label-with-tip">
+                    <span>FRAME CONFIDENCE</span>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="Frame Confidence Details"
+                      data-tip="Measures per-frame correlation between synthesized mouth movement and target audio RMS energy."
+                    >i</button>
+                  </span>
+                  <small>Lip-sync alignment</small>
+                </div>
+                <div class="chart-container">
+                  <canvas id="syncChart"></canvas>
+                </div>
+              </article>
+
+              <article class="mouth-card glass">
+                <div class="card-label">
+                  <span>256 × 256 MOUTH CROP</span>
+                  <small>Source (left) / synced (right)</small>
+                </div>
+                <video id="mouthZoom" controls playsinline></video>
+              </article>
             </div>
+
             <div class="intel-grid">
-              <article class="transcript-card glass"><p class="eyebrow">DETECTED TRANSCRIPT</p><p id="transcript">—</p><div class="translation"><span>TRANSLATED SCRIPT</span><p id="translation">—</p></div></article>
-              <article class="spectrogram-card glass"><p class="eyebrow">ACOUSTIC FINGERPRINT</p><img id="spectrogram" alt="Original and cloned speech spectrogram comparison" /></article>
+              <article class="transcript-card glass">
+                <div class="card-label">
+                  <span>DETECTED TRANSCRIPT</span>
+                  <small id="detectedLangBadge">Faster-Whisper</small>
+                </div>
+                <p id="transcript" class="script-box">—</p>
+
+                <div class="translation">
+                  <div class="card-label">
+                    <span>TRANSLATED SCRIPT</span>
+                    <small>NLLB-200</small>
+                  </div>
+                  <p id="translation" class="script-box translated">—</p>
+                </div>
+
+                <div id="audioComparison" class="audio-compare hidden">
+                  <div class="audio-track">
+                    <span class="mono">ORIGINAL 16kHz WAV</span>
+                    <audio id="originalAudio" controls preload="metadata"></audio>
+                  </div>
+                  <div class="audio-track">
+                    <span class="mono">CLONED VOICE (τ=0.70)</span>
+                    <audio id="clonedAudio" controls preload="metadata"></audio>
+                  </div>
+                </div>
+              </article>
+
+              <article class="spectrogram-card glass">
+                <div class="card-label">
+                  <span class="label-with-tip">
+                    <span>ACOUSTIC FINGERPRINT</span>
+                    <button
+                      type="button"
+                      class="info-tip"
+                      aria-label="Spectrogram Details"
+                      data-tip="Mel-spectrogram comparing frequency energy (dB) and pitch contour between the original speaker and OpenVoice V2 cloned speech."
+                    >i</button>
+                  </span>
+                  <small id="voiceMetricsBadge">Mel-spectrogram comparison</small>
+                </div>
+                <img id="spectrogram" alt="Original and cloned speech spectrogram comparison" />
+              </article>
             </div>
           </section>
         </div>
@@ -83,15 +340,94 @@
     </section>
 
     <section id="benchmarks" class="workspace">
-      <div class="benchmark-hero"><p class="eyebrow">MODEL OBSERVABILITY</p><h1>Benchmark intelligence</h1><p>Performance telemetry for the production rendering stack.</p></div>
+      <div class="benchmark-hero">
+        <div class="title-with-tip">
+          <div>
+            <p class="eyebrow">MODEL OBSERVABILITY</p>
+            <h1>Benchmark intelligence</h1>
+          </div>
+          <button
+            type="button"
+            class="info-tip"
+            aria-label="How to read benchmark cards"
+            data-tip="BASE = pre-trained MuseTalk 1.5 checkpoint; large value = our fine-tuned UNet on held-out frames. ▲ always marks improvement (lower FID/Loss, higher SSIM/PSNR)."
+          >i</button>
+        </div>
+        <p>Pre-trained <code>BASE</code> MuseTalk 1.5 vs. fine-tuned UNet on held-out frames · <span class="delta-good">▲</span> marks improvement.</p>
+      </div>
+
       <div id="metricCards" class="metric-grid"></div>
+
       <div class="telemetry-grid">
-        <article class="loss-card glass"><div class="section-title"><div><p class="eyebrow">OPTIMIZATION TRACE</p><h2>Fine-tuning curves</h2></div><span id="trainingState" class="badge neutral">LOADING</span></div><canvas id="lossChart"></canvas></article>
-        <article class="architecture-card glass"><p class="eyebrow">SYSTEM DESIGN</p><h2>Bounded-memory inference</h2><p>Each heavy model is lazily loaded for a single stage, released with garbage collection, then its accelerator cache is cleared before the next stage starts.</p><div class="memory-flow"><span>ASR</span><i>→</i><span>MT</span><i>→</i><span>VOICE</span><i>→</i><span>LIP-SYNC</span></div><div class="architecture-notes"><div><b>&lt; 8 GB</b><small>Target unified-memory envelope</small></div><div><b>4 terms</b><small>Latent reconstruction + perceptual + sync + temporal</small></div></div></article>
+        <article class="loss-card glass">
+          <div class="section-title">
+            <div class="title-with-tip">
+              <div>
+                <p class="eyebrow">OPTIMIZATION TRACE</p>
+                <h2>Fine-tuning curves</h2>
+              </div>
+              <button
+                type="button"
+                class="info-tip"
+                aria-label="Optimization Trace Details"
+                data-tip="Epoch-by-epoch convergence of composite Total loss (L1 + 0.2·VGG + 0.1·SyncNet + 0.05·Temporal) and mouth-region L1 from Colab Pro fine-tuning."
+              >i</button>
+            </div>
+            <span id="trainingState" class="badge neutral">LOADING</span>
+          </div>
+          <div class="loss-chart-wrap">
+            <canvas id="lossChart"></canvas>
+          </div>
+        </article>
+
+        <article class="architecture-card glass">
+          <p class="eyebrow">SYSTEM DESIGN</p>
+          <h2>Bounded-memory inference</h2>
+          <p>
+            Each heavy model is lazily loaded for a single stage, released with <code>gc.collect()</code>, and flushed from the accelerator cache before the next stage starts—keeping peak RAM under 8 GB on Apple Silicon.
+          </p>
+
+          <div class="memory-flow" aria-label="Sequential Memory Flush Pipeline">
+            <span>ASR</span>
+            <i>→</i>
+            <span>MT</span>
+            <i>→</i>
+            <span>VOICE</span>
+            <i>→</i>
+            <span>LIP-SYNC</span>
+          </div>
+
+          <div class="architecture-notes">
+            <div>
+              <b>&lt; 8 GB</b>
+              <small>Target unified-memory envelope</small>
+            </div>
+            <div>
+              <b>4 terms</b>
+              <small>Latent L1 + perceptual + sync + temporal</small>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
   </main>
-  <template id="metricTemplate"><article class="metric-card glass"><p class="metric-name"></p><div><span class="metric-base"></span><b class="metric-value"></b></div><p class="metric-delta"></p><small class="metric-caption"></small></article></template>
+
+  <!-- Metric Card Template (Strict DOM hook preserved for app.js) -->
+  <template id="metricTemplate">
+    <article class="metric-card glass">
+      <div class="metric-header">
+        <p class="metric-name"></p>
+        <button type="button" class="info-tip" aria-label="Metric details" data-tip="">i</button>
+      </div>
+      <div>
+        <span class="metric-base"></span>
+        <b class="metric-value"></b>
+      </div>
+      <p class="metric-delta"></p>
+      <small class="metric-caption"></small>
+    </article>
+  </template>
+
   <script src="app.js"></script>
 </body>
 </html>
